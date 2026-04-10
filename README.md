@@ -20,7 +20,7 @@ No data is sent anywhere. Everything runs locally on your machine.
 
 ## Requirements
 
-- Windows 10 or 11
+- Windows 11
 - A webcam
 
 ---
@@ -47,7 +47,7 @@ git clone https://github.com/mklittech/bismillah
 cd bismillah
 ```
 
-Or just download the ZIP from the green **Code** button on this page, extract it, and open PowerShell inside that folder. (You can do this by navigating to the folder in File Explorer, then in an empty space, right-click and select open in terminal as shown below.)
+Or just download the ZIP from the green **Code** button on this page, extract it, and open PowerShell inside that folder. (You can do this by navigating to the folder in File Explorer, then typing `powershell` in the address bar and pressing Enter.)
 
 **3. Install dependencies**
 
@@ -87,7 +87,7 @@ Press **Q** to quit.
 - **False positives** — scratching your nose, gesturing, or resting your hand near your face can trigger it. That's why there's an "I wasn't eating" button on the popup — pressing it dismisses the alert without starting the cooldown.
 - **Profile angle** — detection gets unreliable if you're sitting at a sharp angle to the camera. Works best face-on.
 - **Single webcam only** — if you have multiple cameras it always picks the default one.
-- **Windows only** — the media pause and popup features use Windows-specific APIs. It won't run on Mac or Linux without rewriting those parts.
+- **Windows only** — the media pause and popup features use Windows-specific APIs. It won't run on Mac, Linux, or Windows 10 without rewriting those parts.
 - **Utensil detection is limited** — it tracks hand position, not whether you're actually holding a fork or spoon. Works okay in practice but isn't foolproof.
 
 ---
@@ -98,6 +98,12 @@ Press **Q** to quit.
 - [OpenCV](https://opencv.org/) — webcam feed and overlays
 - [tkinter](https://docs.python.org/3/library/tkinter.html) — settings and popup windows
 - [Claude](https://claude.ai) by Anthropic — helped write and debug most of the code
+
+---
+
+## Support
+
+Expect little to no support — this is a project I made for fun and do not actively maintain. Feel free to open an issue or fork it and fix it yourself, but I make no promises on response time.
 
 ---
 
