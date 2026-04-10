@@ -3,39 +3,25 @@ import mediapipe as mp
 import time
 import tkinter as tk
 import sys
-import asyncio
+import ctypes
+import os
+import urllib.request
 from screeninfo import get_monitors
-import winrt.windows.media.control as wmc
 
 
 # ── Media control ─────────────────────────────────────────────────────────────
 
-async def _get_session():
-    try:
-        manager = await wmc.GlobalSystemMediaTransportControlsSessionManager.request_async()
-        return manager.get_current_session()
-    except:
-        return None
-
-async def _control_media(action):
-    session = await _get_session()
-    if not session:
-        return False
-    if action == "pause":
-        info = session.get_playback_info()
-        if info.playback_status == 4:
-            await session.try_pause_async()
-            return True
-    elif action == "resume":
-        await session.try_play_async()
-    return False
+def pause_media():
+    VK_MEDIA_PLAY_PAUSE = 0xB3
+    ctypes.windll.user32.keybd_event(VK_MEDIA_PLAY_PAUSE, 0, 0, 0)
+    ctypes.windll.user32.keybd_event(VK_MEDIA_PLAY_PAUSE, 0, 2, 0)
 
 
 # ── Settings window ───────────────────────────────────────────────────────────
 
 class Settings:
     def __init__(self):
-        self.cooldown_secs = 15
+        self.cooldown_secs = 1800
         self.sensitivity   = 0.22
         self.frames_needed = 6
         self.confirmed     = False
@@ -49,9 +35,9 @@ class Settings:
 
         fields = {}
         for label, key, default in [
-            ("Cooldown (M:S, e.g. 1:30)", "cooldown", "30:00"),
-            ("Sensitivity (0.1 – 0.3)",   "sens",     "0.22"),
-            ("Detection frames",           "frames",   "6"),
+            ("Cooldown (M:S, e.g. 30:00)", "cooldown", "30:00"),
+            ("Sensitivity (0.1 – 0.3)",    "sens",     "0.22"),
+            ("Detection frames",            "frames",   "6"),
         ]:
             tk.Label(root, text=label).pack(pady=(10, 0))
             e = tk.Entry(root)
@@ -79,22 +65,17 @@ class Settings:
 # ── Reminder popup ────────────────────────────────────────────────────────────
 
 def show_popup():
-    """Returns True if the user confirmed they were eating, False if false positive."""
-    was_playing = asyncio.run(_control_media("pause"))
+    pause_media()
     result = {"eating": False}
     root = tk.Tk()
     root.withdraw()
 
     def confirm():
         result["eating"] = True
-        if was_playing:
-            asyncio.run(_control_media("resume"))
         root.destroy()
 
     def false_positive():
         result["eating"] = False
-        if was_playing:
-            asyncio.run(_control_media("resume"))
         root.destroy()
 
     for monitor in get_monitors():
@@ -127,11 +108,27 @@ def show_popup():
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 def main():
+    print("step 1: opening settings...")
     cfg = Settings()
     cfg.show()
+    print("step 2: settings done")
     if not cfg.confirmed:
         sys.exit()
 
+    print("step 3: downloading models if needed...")
+    models = {
+        "hand_landmarker.task": "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",
+        "face_landmarker.task": "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
+    }
+    for filename, url in models.items():
+        if not os.path.exists(filename):
+            print(f"  Downloading {filename}...")
+            urllib.request.urlretrieve(url, filename)
+            print(f"  Done.")
+        else:
+            print(f"  {filename} already exists, skipping.")
+
+    print("step 4: loading mediapipe models...")
     BaseOptions = mp.tasks.BaseOptions
     VIDEO       = mp.tasks.vision.RunningMode.VIDEO
 
@@ -149,11 +146,13 @@ def main():
         )
     )
 
+    print("step 5: opening webcam...")
     cap = cv2.VideoCapture(0)
     if not cap.isOpened():
         print("Could not open webcam.")
         sys.exit()
 
+    print("step 6: running! press Q to quit.")
     eating_frames = 0
     last_alert    = 0
     frame_i       = 0
@@ -164,18 +163,17 @@ def main():
             if not ret:
                 break
 
-            # Only run detection every 5th frame to save CPU
             frame_i += 1
             if frame_i % 5 != 0:
                 time.sleep(0.01)
                 continue
 
-            frame      = cv2.flip(frame, 1)
-            fh, fw, _  = frame.shape
-            small      = cv2.resize(frame, (640, 480))
-            mp_img     = mp.Image(image_format=mp.ImageFormat.SRGB,
-                                  data=cv2.cvtColor(small, cv2.COLOR_BGR2RGB))
-            ts         = int(time.time() * 1000)
+            frame     = cv2.flip(frame, 1)
+            fh, fw, _ = frame.shape
+            small     = cv2.resize(frame, (640, 480))
+            mp_img    = mp.Image(image_format=mp.ImageFormat.SRGB,
+                                 data=cv2.cvtColor(small, cv2.COLOR_BGR2RGB))
+            ts        = int(time.time() * 1000)
 
             h_res = h_det.detect_for_video(mp_img, ts)
             f_res = f_det.detect_for_video(mp_img, ts)
@@ -183,11 +181,10 @@ def main():
             mouth   = None
             is_near = False
 
-            # Face bounding box + estimated mouth position
             if f_res.face_landmarks:
-                lms   = f_res.face_landmarks[0]
-                xs    = [lm.x for lm in lms]
-                ys    = [lm.y for lm in lms]
+                lms    = f_res.face_landmarks[0]
+                xs     = [lm.x for lm in lms]
+                ys     = [lm.y for lm in lms]
                 x1, x2 = min(xs), max(xs)
                 y1, y2 = min(ys), max(ys)
 
@@ -199,15 +196,14 @@ def main():
                             (int(x1 * fw), int(y1 * fh) - 6),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 100, 0), 1)
 
-                mx = (x1 + x2) / 2
-                my = y2 - (y2 - y1) * 0.2
+                mx    = (x1 + x2) / 2
+                my    = y2 - (y2 - y1) * 0.2
                 mouth = (mx, my)
                 cv2.circle(frame, (int(mx * fw), int(my * fh)), 7, (0, 255, 0), -1)
                 cv2.putText(frame, "Mouth",
                             (int(mx * fw) + 9, int(my * fh) + 4),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 255, 0), 1)
 
-            # Hand bounding boxes + proximity check
             if h_res.hand_landmarks:
                 for hand in h_res.hand_landmarks:
                     hxs = [lm.x for lm in hand]
@@ -233,37 +229,34 @@ def main():
                     cv2.putText(frame, label, (hx1, hy1 - 6),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
 
-            # Confidence counter
             if is_near:
                 eating_frames += 1
             else:
                 eating_frames = max(0, eating_frames - 1)
 
-            # Overlay — status
             now    = time.time()
             eating = eating_frames >= cfg.frames_needed
-            s_col  = (0, 0, 255) if eating else (0, 200, 100)
+
+            s_col = (0, 0, 255) if eating else (0, 200, 100)
             cv2.putText(frame, "EATING DETECTED" if eating else "Not eating",
                         (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.9, s_col, 2)
             cv2.putText(frame, "Press Q to quit",
                         (10, 55), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (160, 160, 160), 1)
 
-            # Overlay — cooldown timer
             if last_alert > 0 and (now - last_alert) < cfg.cooldown_secs:
-                secs_left = int(cfg.cooldown_secs - (now - last_alert))
-                cv2.putText(frame, f"Cooldown: {secs_left}s",
+                secs_left  = int(cfg.cooldown_secs - (now - last_alert))
+                mins, secs = divmod(secs_left, 60)
+                cv2.putText(frame, f"Cooldown: {mins}m {secs}s",
                             (10, 75), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (100, 100, 255), 1)
 
-            # Overlay — confidence bar
             fill = int(min(eating_frames / cfg.frames_needed, 1.0) * 200)
             cv2.rectangle(frame, (10, fh - 40), (210, fh - 20), (50, 50, 50), -1)
             cv2.rectangle(frame, (10, fh - 40), (10 + fill, fh - 20), (0, 200, 255), -1)
             cv2.putText(frame, "Confidence",
                         (10, fh - 44), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (180, 180, 180), 1)
 
-            # Trigger popup
             if eating and (now - last_alert) > cfg.cooldown_secs:
-                was_eating = show_popup()
+                was_eating    = show_popup()
                 eating_frames = 0
                 if was_eating:
                     last_alert = time.time()
