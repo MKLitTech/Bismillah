@@ -21,38 +21,56 @@ No data is sent anywhere. Everything runs locally on your machine.
 ## Requirements
 
 - Windows 10 or 11
-- Python 3.10+
 - A webcam
 
 ---
 
-## Setup
+## Setup (fresh Windows install, start here)
 
-**1. Clone the repo**
+**1. Install Python**
+
+Go to [python.org/downloads](https://www.python.org/downloads/) and download the latest Python 3.x installer.
+
+Run it, and on the first screen **make sure to check "Add Python to PATH"** before clicking Install. This is important — if you skip it, commands won't work.
+
+To verify it worked, open PowerShell (search for it in the Start menu) and run:
+```
+python --version
+```
+You should see something like `Python 3.12.x`.
+
+**2. Download the project**
+
+If you have Git installed:
 ```
 git clone https://github.com/mklittech/bismillah
-cd bismillah-tracker
+cd bismillah
 ```
 
-**2. Install dependencies**
+Or just download the ZIP from the green **Code** button on this page, extract it, and open PowerShell inside that folder. (You can do this by navigating to the folder in File Explorer, then typing `powershell` in the address bar and pressing Enter.)
+
+**3. Install dependencies**
+
+In PowerShell, run:
 ```
-pip install mediapipe opencv-python screeninfo winrt-runtime tkinter
+pip install mediapipe opencv-python screeninfo
 ```
 
-**3. Download the MediaPipe model files**
+This will take a minute or two. You should see it downloading and installing packages.
 
-The app will download them automatically on first run, but if you want to grab them manually:
+**4. Download the model files**
+
+The app needs two small model files to detect hands and faces. Download both and place them in the same folder as `bismillah_tracker.py`:
+
 - [hand_landmarker.task](https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task)
 - [face_landmarker.task](https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task)
 
-Place both files in the same folder as `bismillah_tracker.py`.
-
-**4. Run it**
+**5. Run it**
 ```
 python bismillah_tracker.py
 ```
 
-A settings window will open first where you can adjust the cooldown, sensitivity, and detection speed. Hit **Start** and the webcam window will open.
+A settings window will open. Adjust the values if you want, then hit **Start**. The webcam window will open and it'll start tracking.
 
 Press **Q** to quit.
 
@@ -70,11 +88,11 @@ Press **Q** to quit.
 
 ## Known bugs
 
-- **False positives** — if you rest your hand on your face, scratch your nose, or gesture near your mouth, it can trigger. That's why there's an "I wasn't eating" button on the popup to skip the cooldown.
-- **Profile angle** — detection is less reliable if you're sitting at a sharp angle to the camera.
-- **Single webcam only** — if you have multiple cameras, it always picks the default one.
-- **Windows only** — the media pause and popup features rely on Windows APIs. It won't run on Mac or Linux without changes.
-- **Utensil detection is limited** — it detects hand position, not whether you're actually holding a fork or spoon. It works okay in practice but isn't perfect.
+- **False positives** — scratching your nose, gesturing, or resting your hand near your face can trigger it. That's why there's an "I wasn't eating" button on the popup — pressing it dismisses the alert without starting the cooldown.
+- **Profile angle** — detection gets unreliable if you're sitting at a sharp angle to the camera. Works best face-on.
+- **Single webcam only** — if you have multiple cameras it always picks the default one.
+- **Windows only** — the media pause and popup features use Windows-specific APIs. It won't run on Mac or Linux without rewriting those parts.
+- **Utensil detection is limited** — it tracks hand position, not whether you're actually holding a fork or spoon. Works okay in practice but isn't foolproof.
 
 ---
 
@@ -82,7 +100,6 @@ Press **Q** to quit.
 
 - [MediaPipe](https://ai.google.dev/edge/mediapipe/solutions/guide) — hand and face landmark detection
 - [OpenCV](https://opencv.org/) — webcam feed and overlays
-- [winrt](https://github.com/pywinrt/pywinrt) — Windows media session control
 - [tkinter](https://docs.python.org/3/library/tkinter.html) — settings and popup windows
 - [Claude](https://claude.ai) by Anthropic — helped write and debug most of the code
 
