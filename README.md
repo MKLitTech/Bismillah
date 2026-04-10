@@ -4,6 +4,10 @@ A webcam app that detects when you're eating and reminds you to say Bismillah be
 
 > **Note:** This is a proof-of-concept, not a polished app. It has bugs (see below) and was built for fun. Built with the help of Claude (Anthropic).
 
+<img width="640" height="480" alt="UI Preview" src="https://github.com/user-attachments/assets/80639c4f-59dc-4bf6-aa9f-84e3f69a4814" />
+
+<img width="1053" height="642" alt="Eating Detected" src="https://github.com/user-attachments/assets/7688e813-1723-47ee-8a29-b91894670765" />
+
 ---
 
 ## How it works
