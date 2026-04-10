@@ -26,7 +26,7 @@ No data is sent anywhere. Everything runs locally on your machine.
 
 **1. Clone the repo**
 ```
-git clone https://github.com/yourusername/bismillah-tracker.git
+git clone https://github.com/mklittech/bismillah
 cd bismillah-tracker
 ```
 
@@ -58,7 +58,7 @@ Press **Q** to quit.
 
 | Setting | Default | What it does |
 |---|---|---|
-| Cooldown | 0:15 | How long to wait before alerting again after a confirmed eating detection |
+| Cooldown | 30:00 | How long to wait before alerting again after a confirmed eating detection |
 | Sensitivity | 0.22 | How close your hand needs to be to your mouth to trigger (lower = stricter) |
 | Detection frames | 6 | How many consecutive frames needed before triggering the popup |
 
