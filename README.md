@@ -51,6 +51,9 @@ cd bismillah
 
 Or just download the ZIP from the green **Code** button on this page, extract it, and open PowerShell inside that folder. (You can do this by navigating to the folder in File Explorer, then typing `powershell` in the address bar and pressing Enter.)
 
+<img width="876" height="330" alt="image" src="https://github.com/user-attachments/assets/948a2903-4b2f-4152-acac-a090e99a5d0a" />
+
+
 **3. Install dependencies**
 
 In PowerShell, run:
