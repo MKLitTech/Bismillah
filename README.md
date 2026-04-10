@@ -47,7 +47,7 @@ git clone https://github.com/mklittech/bismillah
 cd bismillah
 ```
 
-Or just download the ZIP from the green **Code** button on this page, extract it, and open PowerShell inside that folder. (You can do this by navigating to the folder in File Explorer, then typing `powershell` in the address bar and pressing Enter.)
+Or just download the ZIP from the green **Code** button on this page, extract it, and open PowerShell inside that folder. (You can do this by navigating to the folder in File Explorer, then in an empty space, right-click and select open in terminal as shown below.)
 
 **3. Install dependencies**
 
@@ -58,21 +58,16 @@ pip install mediapipe opencv-python screeninfo
 
 This will take a minute or two. You should see it downloading and installing packages.
 
-**4. Download the model files**
-
-The app needs two small model files to detect hands and faces. Download both and place them in the same folder as `bismillah_tracker.py`:
-
-- [hand_landmarker.task](https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task)
-- [face_landmarker.task](https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task)
-
-**5. Run it**
+**4. Run it**
 ```
 python bismillah_tracker.py
 ```
 
-A settings window will open. Adjust the values if you want, then hit **Start**. The webcam window will open and it'll start tracking.
+The app will automatically download the two model files it needs on first run (~30MB total). A settings window will open — adjust the values if you want, then hit **Start**. The webcam window will open and it'll start tracking.
 
 Press **Q** to quit.
+
+> **If the script just freezes after running the command** — restart your PC and try again. This seems to be a driver or Python process issue on some machines and a reboot fixes it.
 
 ---
 
@@ -88,6 +83,7 @@ Press **Q** to quit.
 
 ## Known bugs
 
+- **Freezes on first run** — if the app hangs after running the command, restart your PC and try again. A reboot fixes it.
 - **False positives** — scratching your nose, gesturing, or resting your hand near your face can trigger it. That's why there's an "I wasn't eating" button on the popup — pressing it dismisses the alert without starting the cooldown.
 - **Profile angle** — detection gets unreliable if you're sitting at a sharp angle to the camera. Works best face-on.
 - **Single webcam only** — if you have multiple cameras it always picks the default one.
