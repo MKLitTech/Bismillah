@@ -90,4 +90,4 @@ Press **Q** to quit.
 
 ## License
 
-MIT — do whatever you want with it.
+MIT — do whatever you want with it, just give me some credit.
