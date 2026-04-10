@@ -20,7 +20,7 @@ No data is sent anywhere. Everything runs locally on your machine.
 
 ## Requirements
 
-- Windows 11
+- Windows 11 *(Windows 10 is not officially supported but may work sometimes)*
 - A webcam
 
 ---
@@ -92,7 +92,7 @@ Press **Q** to quit.
 - **False positives** — scratching your nose, gesturing, or resting your hand near your face can trigger it. That's why there's an "I wasn't eating" button on the popup — pressing it dismisses the alert without starting the cooldown.
 - **Profile angle** — detection gets unreliable if you're sitting at a sharp angle to the camera. Works best face-on.
 - **Single webcam only** — if you have multiple cameras it always picks the default one.
-- **Windows only** — the media pause and popup features use Windows-specific APIs. It won't run on Mac, Linux, or Windows 10 without rewriting those parts.
+- **Windows only** — the media pause and popup features use Windows-specific APIs. It won't run on Mac or Linux without rewriting those parts. Windows 10 is not officially supported but may work sometimes — your mileage may vary.
 - **Utensil detection is limited** — it tracks hand position, not whether you're actually holding a fork or spoon. Works okay in practice but isn't foolproof.
 
 ---
