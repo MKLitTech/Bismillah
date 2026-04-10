@@ -33,6 +33,8 @@ Go to [python.org/downloads](https://www.python.org/downloads/) and download the
 
 Run it, and on the first screen **make sure to check "Add Python to PATH"** before clicking Install. This is important — if you skip it, commands won't work.
 
+<img width="672" height="417" alt="0_7nOyowsPsGI19pZT" src="https://github.com/user-attachments/assets/2138350e-6580-47ee-9574-9283297e2422" />
+
 To verify it worked, open PowerShell (search for it in the Start menu) and run:
 ```
 python --version
